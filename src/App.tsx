@@ -1,122 +1,143 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useEffect, useState } from 'react';
+import Navbar from './components/navbar/Navbar';
+import type { TabKey } from './components/navbar/NavItems';
+import Sidebar from './components/sidebar/SideBar';
+import { linkableAssets, mockAssets } from './data/mockAssets';
+import { loansByUser } from './data/mockLoans';
+import { defaultSettings } from './data/mockUser';
+import type { Asset } from './types/assets';
+import type { SecuritySettings, User } from './types/user';
+import { storage } from './utils/storage';
+import { getAccounts, removeAccount, toUser } from './utils/auth';
+import AuthView from './views/AuthView';
+import CreditProfileView from './views/CreditProfileView';
+import DashboardView from './views/DashboardView';
+import LedgerView from './views/LedgerView';
+import LiteracyHubView from './views/LiteracyHubView';
+import SettingsView from './views/SettingsView';
+import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [user, setUser] = useState<User | null>(() => {
+    const id = storage.get<string | null>('userId', null);
+    const account = getAccounts().find((account) => account.id === id);
+    return account ? toUser(account) : null;
+  });
+
+  const [settings, setSettings] = useState<SecuritySettings>(() =>
+    storage.get('settings', defaultSettings),
+  );
+
+  useEffect(() => {
+    storage.set('userId', user?.id ?? null);
+  }, [user]);
+
+  useEffect(() => {
+    storage.set('settings', settings);
+  }, [settings]);
+
+  const deleteAccount = () => {
+    if (user) removeAccount(user.id);
+    setUser(null);
+  };
+
+  if (!user) {
+    return <AuthView onLogin={setUser} />;
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+    <Workspace
+      key={user.id}
+      user={user}
+      settings={settings}
+      onSettingsChange={setSettings}
+      onSignOut={() => setUser(null)}
+      onDeleteAccount={deleteAccount}
+    />
+  );
 }
 
-export default App
+type WorkspaceProps = {
+  user: User;
+  settings: SecuritySettings;
+  onSettingsChange: (settings: SecuritySettings) => void;
+  onSignOut: () => void;
+  onDeleteAccount: () => void;
+};
+
+function Workspace({
+  user,
+  settings,
+  onSettingsChange,
+  onSignOut,
+  onDeleteAccount,
+}: WorkspaceProps) {
+  const [tab, setTab] = useState<TabKey>('dashboard');
+  const [assets, setAssets] = useState<Asset[]>(() =>
+    storage.get('assets', mockAssets),
+  );
+
+  const loans = loansByUser[user.profile] ?? [];
+
+  useEffect(() => {
+    storage.set('assets', assets);
+  }, [assets]);
+
+  const changeTab = (next: TabKey) => {
+    setTab(next);
+    window.scrollTo({ top: 0 });
+  };
+
+  const linkAsset = (templateId: string) => {
+    const template = linkableAssets.find((asset) => asset.id === templateId);
+    if (!template) return;
+
+    setAssets((currentAssets) =>
+      currentAssets.some((asset) => asset.id === templateId)
+        ? currentAssets
+        : [...currentAssets, template],
+    );
+  };
+
+  const renderView = () => {
+    switch (tab) {
+      case 'ledger':
+        return <LedgerView assets={assets} onLinkAsset={linkAsset} />;
+      case 'credit':
+        return <CreditProfileView user={user} assets={assets} loans={loans} />;
+      case 'literacy':
+        return <LiteracyHubView user={user} assets={assets} />;
+      case 'settings':
+        return (
+          <SettingsView
+            user={user}
+            settings={settings}
+            onSettingsChange={onSettingsChange}
+            onSignOut={onSignOut}
+            onDeleteAccount={onDeleteAccount}
+          />
+        );
+      default:
+        return (
+          <DashboardView
+            user={user}
+            assets={assets}
+            loans={loans}
+            onNavigate={changeTab}
+          />
+        );
+    }
+  };
+
+  return (
+    <div className={`app-shell ${settings.privacyMode ? 'privacy' : ''}`}>
+      <Sidebar active={tab} onChange={changeTab} />
+      <div className="app-column">
+        <Navbar user={user} active={tab} onChange={changeTab} />
+        <main className="app-main" key={tab}>
+          {renderView()}
+        </main>
+      </div>
+    </div>
+  );
+}
