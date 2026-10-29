@@ -76,3 +76,45 @@ export default defineConfig([
 ])
 
 ```
+
+bell5-app/
+├── package.json
+├── tsconfig.json
+├── vite.config.ts
+├── tailwind.config.js
+├── index.html
+│
+└── src/
+    ├── main.tsx                   # React DOM Entrypoint
+    ├── App.tsx                    # Route/View switcher & Auth Guard state
+    ├── index.css                  # Global Tailwind styles
+    │
+    ├── types/                     # TypeScript interfaces (Prevents runtime bugs)
+    │   ├── user.ts                # Profile, Bell 5 ID, Auth state
+    │   ├── assets.ts              # AUM items, liquidity tiers, yields
+    │   ├── credit.ts              # Score pillars, repayment histories
+    │   └── budget.ts              # Budgeting goals & savings pools
+    │
+    ├── data/                      # Initial Mock Data (Typed)
+    │   ├── mockUser.ts            # User details, phone, Bell 5 Credit ID
+    │   ├── mockAssets.ts          # M-Pesa cash flow, MMFs, SACCO shares
+    │   └── mockLoans.ts           # Credit history and repayment tracking
+    │
+    ├── utils/                     # Business & Calculation Engine
+    │   ├── scoreCalculator.ts     # Frontend credit scoring algorithm
+    │   ├── formatters.ts          # Currency (KES/USD) & Bell 5 ID formatting
+    │   └── storage.ts             # LocalStorage helpers for persistence
+    │
+    ├── components/                # Shared UI Components
+    │   ├── Navbar.tsx             # Top bar with Bell 5 ID badge & quick copy
+    │   ├── Sidebar.tsx            # Navigation tabs switcher
+    │   ├── ScoreGauge.tsx         # Animated 300–850 credit gauge meter
+    │   └── StatCard.tsx           # Quick stat display (AUM, Cashflow, Score)
+    │
+    └── views/                     # Main Application Views / Tabs
+        ├── AuthView.tsx           # Login / Account & Phone Number entry
+        ├── DashboardView.tsx      # Minimalist overview (Bell 5 ID, Score, AUM)
+        ├── LedgerView.tsx         # Comprehensive assets, graphs, cash flow
+        ├── CreditProfileView.tsx  # Deep dive into scoring pillars & loan history
+        ├── LiteracyHubView.tsx    # Financial education (Good vs Bad debt, MMFs)
+        └── BudgetingView.tsx      # Savings planner & budgeting tools
