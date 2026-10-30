@@ -58,7 +58,7 @@ export default function AuthView({ onLogin }: AuthViewProps) {
       setBusy(true);
       const result = await signUp(name, email, password);
       setBusy(false);
-      if (!result.ok) return setError(result.error);
+      if (!result.ok ) return setError(result.error);
       return onLogin(result.user);
     }
 
