@@ -77,6 +77,38 @@ export default defineConfig([
 
 ```
 
+# Bell 5 🔔💳
+
+> **Asset-Backed Credit Scoring & Financial Identity Platform**  
+> *Empowering underbanked individuals and gig workers with transparent, privacy-safe, alternative credit scoring.*
+
+---
+
+## 🚀 About The Project
+
+Traditional credit bureaus rely heavily on rigid formal payslips and legacy banking histories, locking out millions of young professionals, gig workers, and informal traders. 
+
+**Bell 5** bridges this gap by introducing an **Asset-Backed Credit Score (ranging from 300 to 850)** powered by alternative financial data:
+* **Liquid Assets & Cash Flow:** M-Pesa wallets, bank histories, and digital transaction velocities.
+* **Secured Investments:** Money Market Funds (MMFs), SACCO shares, and blue-chip equities.
+* **Privacy-First Architecture:** Users share a unique **Bell 5 ID** (e.g., `B5-9081-2026`) with financial institutions to prove creditworthiness *without* exposing sensitive personal records like their National ID, KRA PIN, or raw bank balances.
+
+---
+
+## 🛠️ Tech Stack
+
+* **Frontend Framework:** React + Vite (Single Page Application architecture)
+* **Language:** TypeScript (Strict type safety across data structures and scoring models)
+* **Styling:** Tailwind CSS (Modern, responsive dark-mode fintech interface)
+* **Icons:** `lucide-react`
+
+---
+
+## 📂 Project Architecture
+
+The codebase is organized into feature-driven domains to streamline team collaboration and prevent merge conflicts:
+
+```text
 bell5-app/
 ├── package.json
 ├── tsconfig.json
@@ -118,3 +150,4 @@ bell5-app/
         ├── CreditProfileView.tsx  # Deep dive into scoring pillars & loan history
         ├── LiteracyHubView.tsx    # Financial education (Good vs Bad debt, MMFs)
         └── BudgetingView.tsx      # Savings planner & budgeting tools
+```
